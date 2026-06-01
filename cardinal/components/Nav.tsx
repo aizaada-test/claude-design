@@ -2,14 +2,15 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const BrandMark = () => (
   <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" width="24" height="24">
     <g fill="#cc785c">
-      <rect x="18.4" y="3"   width="3.2" height="34" rx="1.6" />
-      <rect x="3"    y="18.4" width="34" height="3.2" rx="1.6" />
-      <rect x="18.4" y="3"   width="3.2" height="34" rx="1.6" transform="rotate(45 20 20)" />
-      <rect x="18.4" y="3"   width="3.2" height="34" rx="1.6" transform="rotate(-45 20 20)" />
+      <rect x="18.4" y="3"    width="3.2" height="34" rx="1.6" />
+      <rect x="3"    y="18.4" width="34"  height="3.2" rx="1.6" />
+      <rect x="18.4" y="3"    width="3.2" height="34" rx="1.6" transform="rotate(45 20 20)" />
+      <rect x="18.4" y="3"    width="3.2" height="34" rx="1.6" transform="rotate(-45 20 20)" />
     </g>
   </svg>
 );
@@ -40,24 +41,24 @@ export default function Nav() {
     };
   }, []);
 
-  const link = (href: string, label: string) => (
-    <a href={href} className={pathname === href ? "active" : ""}>
+  const navLink = (href: string, label: string) => (
+    <Link href={href} className={pathname === href ? "active" : ""}>
       {label}
-    </a>
+    </Link>
   );
 
   return (
     <nav className="nav" id="main-nav">
       <div className="wrap nav-inner">
-        <a href="/" className="brand">
+        <Link href="/" className="brand">
           <BrandMark />
           Cardinal
-        </a>
+        </Link>
         <div className="nav-links">
-          {link("/",             "Home")}
-          {link("/services",     "Services")}
-          {link("/about",        "About")}
-          {link("/case-studies", "Case studies")}
+          {navLink("/",             "Home")}
+          {navLink("/services",     "Services")}
+          {navLink("/about",        "About")}
+          {navLink("/case-studies", "Case studies")}
         </div>
         <div className="nav-right">
           <a href="#" className="nav-signin">Sign in</a>

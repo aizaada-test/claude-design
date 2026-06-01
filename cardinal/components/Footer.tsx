@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const BrandMarkDark = () => (
   <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" width="24" height="24">
     <g fill="#faf9f5">
@@ -15,27 +17,27 @@ export default function Footer() {
       <div className="wrap">
         <div className="footer-top">
           <div>
-            <a href="/" className="brand">
+            <Link href="/" className="brand">
               <BrandMarkDark />
               Cardinal
-            </a>
+            </Link>
             <p className="footer-blurb">
               A full-service marketing studio for teams who want senior work without the in-house headcount.
             </p>
           </div>
           <div className="footer-col">
             <h4>Studio</h4>
-            <a href="/about">About</a>
-            <a href="/services">Services</a>
-            <a href="/case-studies">Case studies</a>
+            <Link href="/about">About</Link>
+            <Link href="/services">Services</Link>
+            <Link href="/case-studies">Case studies</Link>
             <a href="#">Careers</a>
           </div>
           <div className="footer-col">
             <h4>Services</h4>
-            <a href="/services">Brand strategy</a>
-            <a href="/services">Social &amp; community</a>
-            <a href="/services">Paid media</a>
-            <a href="/services">Content &amp; SEO</a>
+            <Link href="/services">Brand strategy</Link>
+            <Link href="/services">Social &amp; community</Link>
+            <Link href="/services">Paid media</Link>
+            <Link href="/services">Content &amp; SEO</Link>
           </div>
           <div className="footer-col">
             <h4>Get in touch</h4>
