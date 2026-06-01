@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardinal — Marketing studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ====================================================================
+   DESIGN TOKENS
+   ==================================================================== */
+:root {
+  --primary:              #cc785c;
+  --primary-active:       #a9583e;
+  --accent-teal:          #5db8a6;
+  --accent-amber:         #e8a55a;
+  --canvas:               #faf9f5;
+  --surface-soft:         #f5f0e8;
+  --surface-card:         #efe9de;
+  --surface-cream-strong: #e8e0d2;
+  --surface-dark:         #181715;
+  --surface-dark-elevated:#252320;
+  --hairline:             #e6dfd8;
+  --ink:                  #141413;
+  --body:                 #3d3d3a;
+  --muted:                #6c6a64;
+  --muted-soft:           #8e8b82;
+  --on-primary:           #ffffff;
+  --on-dark:              #faf9f5;
+  --on-dark-soft:         #a09d96;
+  --font-display: 'Cormorant Garamond', Garamond, 'Times New Roman', serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --space-section: 96px;
+  --radius-md:    8px;
+  --radius-lg:    12px;
+  --radius-xl:    16px;
+  --radius-pill:  9999px;
+  --shadow-soft:  0 1px 3px rgba(20,20,19,.08);
+  --content-max:  1200px;
+}
+
+/* ====================================================================
+   RESET & BASE
+   ==================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; scroll-behavior: smooth; }
+body { margin: 0; background: var(--canvas); color: var(--body); font-family: var(--font-sans); font-size: 16px; line-height: 1.55; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+::selection { background: rgba(204,120,92,.22); }
+
+/* ====================================================================
+   LAYOUT
+   ==================================================================== */
+.wrap       { max-width: var(--content-max); margin: 0 auto; padding: 0 32px; }
+.band       { padding: var(--space-section) 0; }
+.band-tight { padding: 64px 0; }
+.band-dark  { background: var(--surface-dark); color: var(--on-dark); }
+.band-soft  { background: var(--surface-soft); }
+
+/* ====================================================================
+   TYPOGRAPHY
+   ==================================================================== */
+.eyebrow { font-family: var(--font-sans); font-weight: 500; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); display: inline-block; margin: 0 0 18px; }
+.eyebrow.on-dark { color: var(--accent-amber); }
+.h-xl { font-family: var(--font-display); font-weight: 500; font-size: clamp(44px,6vw,68px); line-height: 1.04; letter-spacing: -1.5px; color: var(--ink); margin: 0; }
+.h-lg { font-family: var(--font-display); font-weight: 500; font-size: clamp(36px,4.5vw,50px); line-height: 1.08; letter-spacing: -1px; color: var(--ink); margin: 0; }
+.h-md { font-family: var(--font-display); font-weight: 500; font-size: clamp(28px,3.4vw,38px); line-height: 1.12; letter-spacing: -0.6px; color: var(--ink); margin: 0; }
+.h-sm { font-family: var(--font-display); font-weight: 500; font-size: 26px; line-height: 1.18; letter-spacing: -0.4px; color: var(--ink); margin: 0; }
+.band-dark .h-xl, .band-dark .h-lg, .band-dark .h-md, .band-dark .h-sm { color: var(--on-dark); }
+.lead { font-size: 19px; line-height: 1.55; color: var(--body); margin: 0; max-width: 52ch; }
+.band-dark .lead { color: var(--on-dark-soft); }
+.title-card { font-family: var(--font-sans); font-weight: 600; font-size: 18px; color: var(--ink); margin: 0 0 8px; letter-spacing: -0.1px; }
+.accent  { color: var(--primary); }
+.body-md { font-family: var(--font-sans); font-weight: 400; font-size: 16px; line-height: 1.55; color: var(--body); }
+
+/* ====================================================================
+   SCROLL REVEAL — GSAP controls opacity; CSS zero is FOUC guard
+   ==================================================================== */
+.reveal { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1 !important; transform: none !important; } }
+
+/* ====================================================================
+   SCROLL PROGRESS BAR
+   ==================================================================== */
+#scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--primary); transform-origin: left center;
+  transform: scaleX(0); z-index: 200; pointer-events: none;
+}
+
+/* ====================================================================
+   NAV
+   ==================================================================== */
+.nav {
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(250,249,245,.82);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--hairline);
+  transition: box-shadow .3s;
+}
+.nav-inner   { display: flex; align-items: center; gap: 32px; height: 68px; }
+.brand       { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 20px; color: var(--ink); letter-spacing: -0.3px; }
+.brand svg   { width: 24px; height: 24px; flex-shrink: 0; }
+.nav-links   { display: flex; gap: 28px; margin-left: 8px; }
+.nav-links a { font-weight: 500; font-size: 14.5px; color: var(--ink); position: relative; padding: 6px 0; transition: color .16s; }
+.nav-links a:hover { color: var(--primary); }
+.nav-links a.active { color: var(--primary); }
+.nav-links a.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--primary); border-radius: 2px; }
+.nav-right   { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+.nav-signin  { font-weight: 500; font-size: 14.5px; color: var(--ink); transition: color .16s; }
+.nav-signin:hover { color: var(--primary); }
+.nav-toggle  { display: none; background: none; border: 0; cursor: pointer; padding: 8px; color: var(--ink); }
+.nav-toggle svg { display: block; }
+
+/* ====================================================================
+   BUTTONS
+   ==================================================================== */
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-weight: 500; font-size: 15px; height: 46px; padding: 0 22px; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+.btn svg { width: 16px; height: 16px; }
+.btn-primary   { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-active); }
+.btn-secondary { background: transparent; color: var(--ink); border-color: var(--hairline); }
+.btn-secondary:hover { border-color: var(--ink); }
+.btn-light { background: var(--canvas); color: var(--ink); }
+.btn-light:hover { background: #fff; }
+.btn-sm { height: 40px; padding: 0 18px; font-size: 14px; }
+.btn:hover .btn-arrow-icon svg { transform: translateX(4px); }
+.btn-arrow-icon svg { transition: transform .2s; }
+
+/* ====================================================================
+   HERO
+   ==================================================================== */
+.hero { padding: 72px 0 0; position: relative; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+.hero h1    { margin-bottom: 26px; }
+.hero .lead { margin-bottom: 32px; }
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.hero-note { font-size: 14px; color: var(--muted); margin: 18px 0 0; }
+
+/* ambient background orbs */
+.hero-bg-orbs { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.hero-orb { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(204,120,92,.065) 0%, transparent 68%); }
+
+/* ====================================================================
+   ORBITAL VISUAL
+   ==================================================================== */
+.orbital {
+  position: relative; aspect-ratio: 1/1; width: 100%; max-width: 520px;
+  margin-inline: auto;
+  background: radial-gradient(120% 120% at 70% 20%, #221f2e 0%, var(--surface-dark) 55%, #100f14 100%);
+  border-radius: var(--radius-xl); overflow: hidden;
+  border: 1px solid rgba(250,249,245,.06);
+}
+.orbit-rings { position: absolute; inset: 0; }
+.ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); border: 1px solid rgba(250,249,245,.10); border-radius: 50%; }
+.ring.r1 { width: 42%; height: 42%; }
+.ring.r2 { width: 66%; height: 66%; }
+.ring.r3 { width: 90%; height: 90%; }
+.orbit-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; z-index: 2; }
+.orbit-core .stat { font-family: var(--font-display); font-weight: 500; font-size: 52px; letter-spacing: -1.5px; color: var(--on-dark); line-height: 1; position: relative; }
+.orbit-core .stat-label { font-size: 13px; color: var(--on-dark-soft); letter-spacing: .3px; margin-top: 6px; }
+/* pulsing core glow */
+.orbit-core-glow {
+  position: absolute; top: 50%; left: 50%;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(204,120,92,.18) 0%, transparent 70%);
+  transform: translate(-50%,-50%);
+  animation: core-pulse 3s ease-in-out infinite;
+}
+@keyframes core-pulse { 0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: .5; } 50% { transform: translate(-50%,-50%) scale(1.6); opacity: 1; } }
+
+/* spinning orbit layer */
+.orbit-spin { position: absolute; inset: 0; animation: orbit-spin 90s linear infinite; }
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+@keyframes counter-spin { to { transform: translate(-50%,-50%) rotate(-360deg); } }
+@media (prefers-reduced-motion: reduce) { .orbit-spin { animation: none; } .node > * { animation: none !important; } }
+.node { position: absolute; width: 0; height: 0; }
+.node > * { animation: counter-spin 90s linear infinite; }
+
+.avatar { position: absolute; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(150deg,#efe9de,#d9d0c2); display: grid; place-items: center; color: #8e8b82; box-shadow: 0 0 0 4px rgba(250,249,245,.06),0 6px 20px rgba(0,0,0,.4); transform: translate(-50%,-50%); }
+.avatar.coral { box-shadow: 0 0 0 4px rgba(204,120,92,.32), 0 6px 22px rgba(204,120,92,.38); }
+.avatar.teal  { box-shadow: 0 0 0 4px rgba(93,184,166,.28),  0 6px 22px rgba(93,184,166,.34); }
+.avatar.amber { box-shadow: 0 0 0 4px rgba(232,165,90,.30),  0 6px 22px rgba(232,165,90,.34); }
+.avatar svg { width: 26px; height: 26px; }
+.chip-tile { position: absolute; width: 50px; height: 50px; border-radius: 14px; background: var(--surface-dark-elevated); display: grid; place-items: center; color: var(--on-dark-soft); border: 1px solid rgba(250,249,245,.08); transform: translate(-50%,-50%); }
+.chip-tile.coral { color: var(--primary); box-shadow: 0 6px 22px rgba(204,120,92,.30); }
+.chip-tile.teal  { color: var(--accent-teal); }
+.chip-tile svg   { width: 22px; height: 22px; }
+.name-tag { position: absolute; transform: translate(-50%,-50%); background: var(--primary); color: var(--on-primary); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: var(--radius-pill); white-space: nowrap; box-shadow: 0 6px 18px rgba(204,120,92,.42); }
+
+/* ====================================================================
+   LOGO BAR
+   ==================================================================== */
+.logobar { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); padding: 30px 0; }
+.logobar-row { display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+.logobar-label { font-size: 13px; color: var(--muted-soft); font-weight: 500; }
+.logos { display: flex; align-items: center; gap: 44px; flex-wrap: wrap; }
+.logo-item { display: flex; align-items: center; gap: 9px; color: var(--muted); font-weight: 700; font-size: 18px; letter-spacing: -0.3px; opacity: .7; transition: opacity .2s; cursor: default; }
+.logo-item:hover { opacity: 1; }
+.logo-item svg { width: 22px; height: 22px; }
+
+/* ====================================================================
+   CARDS & GRIDS
+   ==================================================================== */
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 22px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
+.card { background: var(--surface-card); border-radius: var(--radius-lg); padding: 32px; transform-style: preserve-3d; will-change: transform; transition: box-shadow .25s; }
+.card.hoverable:hover { box-shadow: 0 12px 40px rgba(20,20,19,.10); }
+.card .body-text { font-size: 15px; color: var(--body); margin: 0; }
+.icon-badge { width: 52px; height: 52px; border-radius: var(--radius-md); display: grid; place-items: center; margin-bottom: 18px; background: var(--surface-cream-strong); color: var(--ink); }
+.icon-badge svg { width: 26px; height: 26px; }
+.arrow-link { display: inline-flex; align-items: center; gap: 7px; color: var(--primary); font-weight: 500; font-size: 14.5px; margin-top: 18px; }
+.arrow-link svg { width: 15px; height: 15px; transition: transform .18s; }
+.arrow-link:hover svg { transform: translateX(4px); }
+.tag { font-size: 12.5px; font-weight: 500; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--hairline); padding: 5px 12px; border-radius: var(--radius-pill); }
+
+/* ====================================================================
+   STATS
+   ==================================================================== */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+.stat-item .stat-num { font-family: var(--font-display); font-weight: 500; font-size: 52px; letter-spacing: -1.5px; line-height: 1; color: var(--ink); }
+.band-dark .stat-item .stat-num { color: var(--on-dark); }
+.stat-item .stat-num .accent { color: var(--primary); }
+.stat-item .stat-cap { font-size: 14.5px; color: var(--muted); margin-top: 8px; }
+.band-dark .stat-item .stat-cap { color: var(--on-dark-soft); }
+
+/* ====================================================================
+   TESTIMONIAL
+   ==================================================================== */
+.quote { font-family: var(--font-display); font-weight: 500; font-size: clamp(28px,3.6vw,40px); line-height: 1.22; letter-spacing: -0.6px; color: var(--on-dark); margin: 0; }
+.quote::before { content: '\201C'; }
+.quote::after  { content: '\201D'; }
+.quote-attr { display: flex; align-items: center; gap: 14px; margin-top: 32px; }
+.quote-attr .who  { font-weight: 600; color: var(--on-dark); font-size: 15px; }
+.quote-attr .role { color: var(--on-dark-soft); font-size: 14px; }
+
+/* quote decoration line */
+.testimonial-line {
+  width: 48px; height: 2px; background: var(--primary);
+  margin-bottom: 40px;
+  transform-origin: left;
+}
+
+/* ====================================================================
+   CALLOUT
+   ==================================================================== */
+.callout { background: var(--primary); border-radius: var(--radius-xl); padding: 64px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+.callout .h-md { color: var(--on-primary); }
+.callout p { color: rgba(255,255,255,.86); margin: 12px 0 0; font-size: 16px; }
+.callout-text { max-width: 60ch; }
+
+/* ====================================================================
+   FOOTER
+   ==================================================================== */
+.footer { background: var(--surface-dark); color: var(--on-dark-soft); padding: 72px 0 36px; }
+.footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-bottom: 48px; border-bottom: 1px solid rgba(250,249,245,.08); }
+.footer .brand  { color: var(--on-dark); }
+.footer-blurb   { font-size: 14.5px; color: var(--on-dark-soft); margin: 16px 0 0; max-width: 30ch; }
+.footer-col h4  { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--on-dark-soft); font-weight: 600; margin: 0 0 16px; }
+.footer-col a   { display: block; color: var(--on-dark); font-size: 14.5px; padding: 6px 0; opacity: .82; transition: opacity .15s, color .15s; }
+.footer-col a:hover { opacity: 1; color: var(--primary); }
+.footer-bottom  { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; gap: 16px; flex-wrap: wrap; }
+.footer-bottom .small { font-size: 13px; color: var(--muted-soft); }
+.footer-social  { display: flex; gap: 14px; }
+.footer-social a { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(250,249,245,.14); color: var(--on-dark); opacity: .8; transition: opacity .15s, border-color .15s; }
+.footer-social a:hover { opacity: 1; border-color: var(--primary); }
+.footer-social svg { width: 17px; height: 17px; }
+
+/* ====================================================================
+   RESPONSIVE
+   ==================================================================== */
+@media (max-width: 940px) {
+  .hero-grid  { grid-template-columns: 1fr; gap: 40px; }
+  .orbital    { max-width: 440px; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  .stat-grid  { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
+}
+@media (max-width: 760px) {
+  .wrap { padding: 0 22px; }
+  .band { padding: 64px 0; }
+  .nav-links, .nav-signin { display: none; }
+  .nav.open .nav-links { display: flex; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column; background: var(--canvas); border-bottom: 1px solid var(--hairline); padding: 14px 22px; gap: 4px; z-index: 59; }
+  .nav.open .nav-links a { padding: 12px 0; font-size: 16px; }
+  .nav-toggle { display: block; }
+  .grid-3, .grid-2, .grid-4 { grid-template-columns: 1fr; }
+  .callout { padding: 40px; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .stat-grid, .footer-top { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SCROLL PROGRESS ===== -->
+<div id="scroll-progress"></div>
+
+<!-- ============================= NAV ============================= -->
+<nav class="nav" id="main-nav">
+  <div class="wrap nav-inner">
+    <a href="index.html" class="brand">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g fill="#cc785c">
+          <rect x="18.4" y="3" width="3.2" height="34" rx="1.6"/>
+          <rect x="3" y="18.4" width="34" height="3.2" rx="1.6"/>
+          <rect x="18.4" y="3" width="3.2" height="34" rx="1.6" transform="rotate(45 20 20)"/>
+          <rect x="18.4" y="3" width="3.2" height="34" rx="1.6" transform="rotate(-45 20 20)"/>
+        </g>
+      </svg>
+      Cardinal
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="case-studies.html">Case studies</a>
+    </div>
+    <div class="nav-right">
+      <a href="#" class="nav-signin">Sign in</a>
+      <a href="#start" class="btn btn-primary btn-sm">Start a project</a>
+      <button class="nav-toggle" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================= HERO ============================= -->
+<header class="hero">
+  <!-- ambient floating background orbs -->
+  <div class="hero-bg-orbs" aria-hidden="true">
+    <span class="hero-orb" style="width:380px;height:380px;left:6%;top:15%"></span>
+    <span class="hero-orb" style="width:240px;height:240px;left:80%;top:8%"></span>
+    <span class="hero-orb" style="width:300px;height:300px;left:58%;top:68%"></span>
+  </div>
+
+  <div class="wrap hero-grid">
+    <!-- left: copy -->
+    <div class="hero-text">
+      <span class="eyebrow" id="hero-eyebrow">Full-service marketing studio</span>
+      <h1 class="h-xl" id="hero-headline">Unlock the marketing talent you thought was <span class="accent">out of reach.</span></h1>
+      <p class="lead" id="hero-lead">Cardinal pairs your brand with a senior team across strategy, social, and paid — the kind of people who usually only work in-house. Now they're one conversation away.</p>
+      <div class="hero-actions" id="hero-actions">
+        <a href="#start" class="btn btn-primary btn-arrow">Start a project
+          <span class="btn-arrow-icon" style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+        <a href="case-studies.html" class="btn btn-secondary">See our work</a>
+      </div>
+      <p class="hero-note" id="hero-note">Trusted by ambitious teams from seed to Series C.</p>
+    </div>
+
+    <!-- right: orbital specialists visual -->
+    <div id="orbital-wrap">
+      <div class="orbital">
+        <div class="orbit-rings" aria-hidden="true">
+          <span class="ring r1"></span>
+          <span class="ring r2"></span>
+          <span class="ring r3"></span>
+        </div>
+        <!-- spinning orbit layer -->
+        <div class="orbit-spin" aria-hidden="true">
+          <span class="node" style="top:13%;left:70%"><span class="avatar coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></span>
+          <span class="node" style="top:39%;left:15%"><span class="avatar teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></span>
+          <span class="node" style="top:42%;left:87%"><span class="avatar amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></span>
+          <span class="node" style="top:85%;left:60%"><span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></span>
+          <span class="node" style="top:66%;left:20%"><span class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span></span>
+          <span class="node" style="top:25%;left:40%"><span class="chip-tile coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8a4 4 0 0 1 0 8"/></svg></span></span>
+          <span class="node" style="top:60%;left:80%"><span class="chip-tile teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 4-5"/></svg></span></span>
+          <span class="node" style="top:80%;left:36%"><span class="chip-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.1 10.9l7.8-3.7M8.1 13.1l7.8 3.7"/></svg></span></span>
+          <span class="node" style="top:20%;left:88%"><span class="chip-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg></span></span>
+        </div>
+        <!-- pulsing glow behind core number -->
+        <div class="orbit-core-glow" aria-hidden="true"></div>
+        <!-- core stat -->
+        <div class="orbit-core">
+          <div class="stat"><span id="orbit-stat">0</span>+</div>
+          <div class="stat-label">brands grown</div>
+        </div>
+        <span class="name-tag" style="left:34%;top:72%">Maya · Strategy</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================= LOGO BAR ============================= -->
+<section class="logobar">
+  <div class="wrap logobar-row">
+    <span class="logobar-label reveal">Trusted by ambitious teams</span>
+    <div class="logos">
+      <span class="logo-item reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l8 5v8l-8 5-8-5V8z"/></svg>Dreamure</span>
+      <span class="logo-item reveal" data-delay="80"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>Switch</span>
+      <span class="logo-item reveal" data-delay="160"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3"/></svg>Glowsphere</span>
+      <span class="logo-item reveal" data-delay="240"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 21s-7-5.2-7-10a7 7 0 0 1 14 0c0 4.8-7 10-7 10z"/></svg>PinSpace</span>
+      <span class="logo-item reveal" data-delay="320"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg>Visionix</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SERVICES ============================= -->
+<section class="band">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px;margin-bottom:48px">
+      <span class="eyebrow">What we do</span>
+      <h2 class="h-lg">Which problem are you up against?</h2>
+      <p class="lead" style="margin-top:18px">Pick the channel that's holding you back, or hand us the whole picture. Either way you get one senior team, accountable end to end.</p>
+    </div>
+    <div class="grid-3" id="services-grid">
+      <a class="card hoverable reveal" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z"/></svg></div>
+        <h3 class="title-card">Brand strategy</h3>
+        <p class="body-text">Positioning, messaging, and identity that make people remember you — and choose you.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="card hoverable reveal" data-delay="80" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 1 0-2.8-4H9a5 5 0 0 0 0 10h6.2A3 3 0 1 0 18 8z"/><path d="M6 14v6"/></svg></div>
+        <h3 class="title-card">Social &amp; community</h3>
+        <p class="body-text">Always-on content and community management that turns followers into a real audience.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="card hoverable reveal" data-delay="160" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-7z"/></svg></div>
+        <h3 class="title-card">Paid media</h3>
+        <p class="body-text">Performance campaigns across search, social, and programmatic — measured to the dollar.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="card hoverable reveal" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h3 class="title-card">Content &amp; SEO</h3>
+        <p class="body-text">Editorial that earns rankings and trust, built around the questions your buyers actually ask.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="card hoverable reveal" data-delay="80" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <h3 class="title-card">Web &amp; design</h3>
+        <p class="body-text">Sites and landing pages that look the part and convert — designed, built, and shipped fast.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="card hoverable reveal" data-delay="160" href="services.html">
+        <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+        <h3 class="title-card">Analytics &amp; insight</h3>
+        <p class="body-text">Dashboards and experiments that tell you what's working, so the next decision is the right one.</p>
+        <span class="arrow-link">Explore <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= STATS (dark) ============================= -->
+<section class="band band-dark">
+  <div class="wrap">
+    <div class="reveal" style="max-width:620px;margin-bottom:54px">
+      <span class="eyebrow on-dark">The work, by the numbers</span>
+      <h2 class="h-md">Senior people. Measurable outcomes. No hand-offs to a junior the week after you sign.</h2>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num"><span class="num-counter" data-end="12" data-decimals="0">0</span><span class="accent">yrs</span></div>
+        <div class="stat-cap">Building brands across B2B and consumer.</div>
+      </div>
+      <div class="stat-item reveal" data-delay="80">
+        <div class="stat-num"><span class="num-counter" data-end="150" data-decimals="0">0</span><span class="accent">+</span></div>
+        <div class="stat-cap">Brands grown, from seed startups to public companies.</div>
+      </div>
+      <div class="stat-item reveal" data-delay="160">
+        <div class="stat-num">+<span class="num-counter" data-end="180" data-decimals="0">0</span><span class="accent">%</span></div>
+        <div class="stat-cap">Average pipeline lift in the first two quarters.</div>
+      </div>
+      <div class="stat-item reveal" data-delay="240">
+        <div class="stat-num"><span class="num-counter" data-end="4.9" data-decimals="1">0.0</span><span class="accent">/5</span></div>
+        <div class="stat-cap">Average client rating across engagements.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SELECTED WORK ============================= -->
+<section class="band">
+  <div class="wrap">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:44px;flex-wrap:wrap">
+      <div style="max-width:520px">
+        <span class="eyebrow">Selected work</span>
+        <h2 class="h-lg">Proof, not promises.</h2>
+      </div>
+      <a href="case-studies.html" class="btn btn-secondary">View all case studies</a>
+    </div>
+    <div class="grid-2" id="work-grid">
+      <a id="work-left" href="case-studies.html" style="display:block">
+        <div style="aspect-ratio:16/10;border-radius:var(--radius-lg);background:linear-gradient(140deg,#efe9de,#e8e0d2);display:grid;place-items:center;color:var(--muted-soft);font-size:13px;border:1px solid var(--hairline)">Project image</div>
+        <div style="margin-top:18px">
+          <div style="display:flex;gap:8px;margin-bottom:10px"><span class="tag">Brand · Paid</span></div>
+          <h3 class="h-sm">Dreamure — a rebrand that doubled demo requests</h3>
+          <p class="body-text" style="margin-top:8px;color:var(--body)">+112% qualified demos in one quarter after a full repositioning and paid relaunch.</p>
+          <span class="arrow-link">Read the case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a id="work-right" href="case-studies.html" style="display:block">
+        <div style="aspect-ratio:16/10;border-radius:var(--radius-lg);background:linear-gradient(140deg,#252320,#181715);display:grid;place-items:center;color:var(--on-dark-soft);font-size:13px;border:1px solid #252320">Project image</div>
+        <div style="margin-top:18px">
+          <div style="display:flex;gap:8px;margin-bottom:10px"><span class="tag">Social · Content</span></div>
+          <h3 class="h-sm">Glowsphere — from quiet launch to a real community</h3>
+          <p class="body-text" style="margin-top:8px;color:var(--body)">38k engaged followers and a 6× lift in branded search in eight months.</p>
+          <span class="arrow-link">Read the case study <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= TESTIMONIAL (dark) ============================= -->
+<section class="band band-dark" id="testimonial-section">
+  <div class="wrap" style="max-width:900px">
+    <div class="testimonial-line" id="testimonial-line"></div>
+    <p class="quote" id="quote-text">Cardinal felt less like an agency and more like the marketing team we'd been trying to hire for two years — only faster, and already in motion.</p>
+    <div class="quote-attr" id="quote-attr">
+      <span class="avatar teal" style="position:relative;transform:none;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+      <div><div class="who">Daniel Okafor</div><div class="role">VP Marketing, PinSpace</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= CALLOUT ============================= -->
+<section class="band-tight" id="start">
+  <div class="wrap">
+    <div class="callout" id="main-callout">
+      <div class="callout-text">
+        <h2 class="h-md">Let's build your next chapter.</h2>
+        <p>Tell us where you're stuck. We'll come back with a plan and the team to run it — usually within two days.</p>
+      </div>
+      <a href="#" class="btn btn-light btn-arrow">Start a project
+        <span class="btn-arrow-icon" style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="reveal">
+        <a href="index.html" class="brand">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24">
+            <g fill="#faf9f5">
+              <rect x="18.4" y="3" width="3.2" height="34" rx="1.6"/>
+              <rect x="3" y="18.4" width="34" height="3.2" rx="1.6"/>
+              <rect x="18.4" y="3" width="3.2" height="34" rx="1.6" transform="rotate(45 20 20)"/>
+              <rect x="18.4" y="3" width="3.2" height="34" rx="1.6" transform="rotate(-45 20 20)"/>
+            </g>
+          </svg>
+          Cardinal
+        </a>
+        <p class="footer-blurb">A full-service marketing studio for teams who want senior work without the in-house headcount.</p>
+      </div>
+      <div class="footer-col reveal" data-delay="80">
+        <h4>Studio</h4>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="case-studies.html">Case studies</a>
+        <a href="#">Careers</a>
+      </div>
+      <div class="footer-col reveal" data-delay="160">
+        <h4>Services</h4>
+        <a href="services.html">Brand strategy</a>
+        <a href="services.html">Social &amp; community</a>
+        <a href="services.html">Paid media</a>
+        <a href="services.html">Content &amp; SEO</a>
+      </div>
+      <div class="footer-col reveal" data-delay="240">
+        <h4>Get in touch</h4>
+        <a href="#">hello@cardinal.studio</a>
+        <a href="#">Book a call</a>
+        <a href="#">Newsletter</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="small">© 2026 Cardinal Studio. All rights reserved.</span>
+      <div class="footer-social">
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================= GSAP ============================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ----------------------------------------------------------------
+     MOBILE NAV
+  ---------------------------------------------------------------- */
+  var nav    = document.getElementById('main-nav');
+  var toggle = document.querySelector('.nav-toggle');
+  if (nav && toggle) {
+    toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+    document.querySelectorAll('.nav-links a').forEach(function (a) {
+      a.addEventListener('click', function () { nav.classList.remove('open'); });
+    });
+  }
+
+  /* ----------------------------------------------------------------
+     SCROLL PROGRESS BAR
+  ---------------------------------------------------------------- */
+  gsap.to('#scroll-progress', {
+    scaleX: 1,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: document.documentElement,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0
+    }
+  });
+
+  /* ----------------------------------------------------------------
+     NAV SCROLL SHADOW
+  ---------------------------------------------------------------- */
+  ScrollTrigger.create({
+    start: 'top -50',
+    onToggle: function (self) {
+      gsap.to('#main-nav', {
+        boxShadow: self.isActive ? '0 2px 24px rgba(20,20,19,.09)' : 'none',
+        duration: 0.4
+      });
+    }
+  });
+
+  /* ================================================================
+     PAGE LOAD TIMELINE
+     All hero elements animate in on load; orbital follows with scale.
+  ================================================================ */
+  var tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+  tl
+    /* nav slides down from above */
+    .from('#main-nav', {
+      y: -90, opacity: 0, duration: 1.0, ease: 'power3.out'
+    })
+    /* eyebrow label */
+    .from('#hero-eyebrow', {
+      y: 20, opacity: 0, duration: 0.7
+    }, '-=0.55')
+    /* headline: clip-path wipe from bottom + slide up — editorial "print" reveal */
+    .from('#hero-headline', {
+      clipPath: 'inset(0 0 100% 0)',
+      y: 36,
+      opacity: 0,
+      duration: 1.2,
+      ease: 'expo.out'
+    }, '-=0.4')
+    /* lead paragraph */
+    .from('#hero-lead', {
+      y: 22, opacity: 0, duration: 0.85
+    }, '-=0.7')
+    /* CTA buttons */
+    .from('#hero-actions', {
+      y: 18, opacity: 0, duration: 0.7
+    }, '-=0.55')
+    /* trust note */
+    .from('#hero-note', {
+      opacity: 0, duration: 0.6
+    }, '-=0.25')
+    /* background orbs bloom in */
+    .from('.hero-orb', {
+      opacity: 0, scale: 0.5, duration: 2.5, stagger: 0.35, ease: 'power2.out'
+    }, '-=2.0')
+    /* orbital card scales in */
+    .from('#orbital-wrap', {
+      scale: 0.84, opacity: 0, duration: 1.4, ease: 'expo.out'
+    }, '-=2.4')
+    /* orbit rings stagger scale in from centre */
+    .from('.ring', {
+      scale: 0, opacity: 0, duration: 1.0, stagger: 0.22, ease: 'expo.out',
+      transformOrigin: 'center center'
+    }, '-=1.1')
+    /* orbit-core stat counts from 0 to 150 */
+    .call(function () {
+      var el  = document.getElementById('orbit-stat');
+      var obj = { val: 0 };
+      gsap.to(obj, {
+        val: 150, duration: 2.2, ease: 'power2.out',
+        onUpdate: function () { el.textContent = Math.round(obj.val); }
+      });
+    }, null, '-=0.6')
+    /* name-tag pop in */
+    .from('.name-tag', {
+      opacity: 0, scale: 0.72, y: 16, duration: 0.85, ease: 'back.out(1.7)'
+    }, '-=1.8');
+
+  /* ambient orb float */
+  document.querySelectorAll('.hero-orb').forEach(function (orb, i) {
+    gsap.to(orb, {
+      x: 'random(-40, 40)', y: 'random(-40, 40)',
+      duration: 7 + i * 2, repeat: -1, yoyo: true,
+      ease: 'sine.inOut', delay: i * 1.4
+    });
+  });
+
+  /* ================================================================
+     GENERIC SCROLL REVEALS  — all .reveal elements
+  ================================================================ */
+  document.querySelectorAll('.reveal').forEach(function (el) {
+    var delay = parseInt(el.getAttribute('data-delay') || 0) / 1000;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 26 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.9, delay: delay,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+      }
+    );
+  });
+
+  /* ================================================================
+     STAT NUMBER COUNTERS
+  ================================================================ */
+  document.querySelectorAll('.num-counter[data-end]').forEach(function (el) {
+    var end      = parseFloat(el.getAttribute('data-end'));
+    var decimals = parseInt(el.getAttribute('data-decimals') || 0);
+    var obj      = { val: 0 };
+
+    ScrollTrigger.create({
+      trigger: el, start: 'top 90%', once: true,
+      onEnter: function () {
+        gsap.to(obj, {
+          val: end, duration: 2.4, ease: 'power2.out',
+          onUpdate: function () { el.textContent = obj.val.toFixed(decimals); }
+        });
+      }
+    });
+  });
+
+  /* ================================================================
+     WORK SECTION — slides in from opposite sides
+  ================================================================ */
+  gsap.from('#work-left', {
+    x: -65, opacity: 0, duration: 1.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '#work-grid', start: 'top 84%', once: true }
+  });
+  gsap.from('#work-right', {
+    x: 65, opacity: 0, duration: 1.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '#work-grid', start: 'top 84%', once: true }
+  });
+
+  /* ================================================================
+     TESTIMONIAL — dramatic blur+reveal
+  ================================================================ */
+  var testimonialSt = { trigger: '#testimonial-section', start: 'top 80%', once: true };
+
+  gsap.from('#testimonial-line', {
+    scaleX: 0, opacity: 0, duration: 0.8, ease: 'expo.out',
+    transformOrigin: 'left center',
+    scrollTrigger: testimonialSt
+  });
+  gsap.from('#quote-text', {
+    opacity: 0, y: 38, filter: 'blur(5px)', duration: 1.3, ease: 'power3.out',
+    delay: 0.15,
+    scrollTrigger: testimonialSt
+  });
+  gsap.from('#quote-attr', {
+    opacity: 0, y: 22, duration: 0.9, ease: 'power3.out',
+    delay: 0.5,
+    scrollTrigger: testimonialSt
+  });
+
+  /* ================================================================
+     CALLOUT — scale entrance + glow pulse
+  ================================================================ */
+  gsap.from('#main-callout', {
+    scale: 0.93, opacity: 0, y: 32, duration: 1.05, ease: 'power3.out',
+    scrollTrigger: { trigger: '#main-callout', start: 'top 86%', once: true }
+  });
+
+  ScrollTrigger.create({
+    trigger: '#main-callout', start: 'top 86%', once: true,
+    onEnter: function () {
+      gsap.to('#main-callout', {
+        boxShadow: '0 28px 70px rgba(204,120,92,.30)',
+        duration: 2.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.1
+      });
+    }
+  });
+
+  /* ================================================================
+     ORBITAL PARALLAX — drifts upward as hero scrolls away
+  ================================================================ */
+  gsap.to('#orbital-wrap', {
+    y: -75, ease: 'none',
+    scrollTrigger: {
+      trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.8
+    }
+  });
+
+  /* ================================================================
+     3D CARD TILT HOVER
+  ================================================================ */
+  document.querySelectorAll('.card.hoverable').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r  = card.getBoundingClientRect();
+      var cx = (e.clientX - r.left)  / r.width  - 0.5;
+      var cy = (e.clientY - r.top)   / r.height - 0.5;
+      gsap.to(card, {
+        rotationY: cx * 10, rotationX: -cy * 10,
+        scale: 1.03, duration: 0.35, ease: 'power2.out',
+        transformPerspective: 900
+      });
+    });
+    card.addEventListener('mouseleave', function () {
+      gsap.to(card, {
+        rotationY: 0, rotationX: 0, scale: 1,
+        duration: 0.55, ease: 'power3.out'
+      });
+    });
+  });
+
+  /* ================================================================
+     BUTTON PRESS MICRO-ANIMATION
+  ================================================================ */
+  document.querySelectorAll('.btn').forEach(function (btn) {
+    btn.addEventListener('mousedown', function () {
+      gsap.to(btn, { scale: 0.96, duration: 0.1, ease: 'power2.in' });
+    });
+    ['mouseup', 'mouseleave'].forEach(function (evt) {
+      btn.addEventListener(evt, function () {
+        gsap.to(btn, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
+      });
+    });
+  });
+
+  /* ================================================================
+     LOGO ITEM HOVER LIFT
+  ================================================================ */
+  document.querySelectorAll('.logo-item').forEach(function (logo) {
+    logo.addEventListener('mouseenter', function () {
+      gsap.to(logo, { y: -4, duration: 0.25, ease: 'power2.out' });
+    });
+    logo.addEventListener('mouseleave', function () {
+      gsap.to(logo, { y: 0, duration: 0.35, ease: 'power2.out' });
+    });
+  });
+
+  /* ================================================================
+     SERVICES GRID — stagger scale-in with slight rotation
+  ================================================================ */
+  gsap.from('#services-grid .card', {
+    y: 50, opacity: 0, rotation: 1.5, scale: 0.97,
+    duration: 0.85, stagger: 0.09, ease: 'power3.out',
+    scrollTrigger: { trigger: '#services-grid', start: 'top 82%', once: true }
+  });
+
+})();
+</script>
+
+</body>
+</html>
